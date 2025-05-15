@@ -82,9 +82,9 @@ async def rename_callback(bot, query):
 
     sts = await query.message.edit("Tʀyɪɴɢ Tᴏ Dᴏᴡɴʟᴏᴀᴅɪɴɢ....")    
     try:
-     	path = await file.download(file_name=file_path, progress=progress_for_pyrogram,progress_args=("Dᴏᴡɴʟᴏᴀᴅ Sᴛᴀʀᴛᴇᴅ....", sts, time.time()))                    
+        path = await file.download(file_name=file_path, progress=progress_for_pyrogram,progress_args=("Dᴏᴡɴʟᴏᴀᴅ Sᴛᴀʀᴛᴇᴅ....", sts, time.time()))                    
     except Exception as e:
-     	return await sts.edit(e)
+        return await sts.edit(e)
     duration = 0
     try:
         metadata = extractMetadata(createParser(file_path))
@@ -116,6 +116,19 @@ async def rename_callback(bot, query):
         img.save(ph_path, "JPEG")
 
     await sts.edit("Tʀyɪɴɢ Tᴏ Uᴩʟᴏᴀᴅɪɴɢ....")
+
+    # ✅ 2GB file size check before upload
+    file_size = os.path.getsize(file_path)
+    if file_size > 2 * 1024 * 1024 * 1024:
+        await sts.edit("Sᴏʀʀy! Tʜɪꜱ Bᴏᴛ Dᴏᴇꜱɴ'ᴛ Sᴜᴩᴩᴏʀᴛ Fɪʟᴇꜱ Bɪɢɢᴇʀ Tʜᴀɴ 2GB.")
+        try:
+            os.remove(file_path)
+            if ph_path:
+                os.remove(ph_path)
+        except:
+            pass
+        return
+
     type = query.data.split("_")[1]
     try:
         if type == "document":
@@ -147,16 +160,16 @@ async def rename_callback(bot, query):
     except Exception as e:          
         try: 
             os.remove(file_path)
-            os.remove(ph_path)
+            if ph_path:
+                os.remove(ph_path)
             return await sts.edit(f" Eʀʀᴏʀ {e}")
-        except: pass
+        except:
+            pass
         
     try: 
         os.remove(file_path)
-        os.remove(ph_path)
+        if ph_path:
+            os.remove(ph_path)
         await sts.delete()
-    except: pass
-
-
-
-
+    except:
+        pass
